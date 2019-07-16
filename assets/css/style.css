@@ -1,1 +1,55 @@
+body {
+    background-color: #24272E;
+}
 
+header {
+    background-color: white;
+    padding: 20px;
+}
+
+header > h1 {
+    color: #24272E;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.Scoreboard {
+    margin: 20px auto;
+    border: 3px solid white;
+    border-radius: 4px;
+    text-align: center;
+    width: 200px;
+    color: white;
+    font-size: 46px;
+    padding: 15px 20px;
+    font-family: Arial, Helvetica, sans-serif;
+    position: relative;
+}
+
+.Card {
+    background-color: #E2584D;
+    color: white;
+    font-size: 14px;
+    padding: 2px 10px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#Human {
+    position: absolute;
+    top: 30px;
+    left: -25px;
+}
+
+#Computer {
+    position: absolute;
+    top: 30px;
+    right: -40px;
+}
+
+.Game {
+    font-size: 40px;
+    color: white;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+}

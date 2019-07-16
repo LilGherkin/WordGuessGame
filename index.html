@@ -23,20 +23,22 @@
     </header>
 
     <div class="Scoreboard">
-        <div id="HumanCard" class="PlayerCard">User</div>
-        </div>
-        <div id="ComputerCard" class="PlayerCard">Computer</div>
-        </div>
-        <span id="HumanScore">0</span>
-        <span> : </span>
-        <span id="ComputerScore">0</span>
+        <div id="Human" class="Card">User</div>
+        <div id="Computer" class="Card">Computer</div>
+        <span id="HumanScore">0</span>:<span id="ComputerScore">0</span>
     </div>
 
     <div class="Game">
+        <h2>Press Any Key To Begin</h2>
         <div id="WordToGuess"></div>
+        <div id="GuessesLeft"></div>
         <div id="GuessedLetters"></div>
     </div>
 
+    <script>
+        ResetGame();
+        UpdateDisplay();
+    </script>
     
 
 </body>

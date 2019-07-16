@@ -16,7 +16,7 @@
     
     
 // Array with list of words to choose from.
-var Words = ["jazz", "nadir", "apex", "affix" 
+var Words = ["jazz", "nadir", "apex", "affix",
             "axiom", "blitz", "azure", "boggle", 
             "fuchsia", "gazebo", "gaze", "jaundice", 
             "mnemonic", "megahertz", "rhubarb", "topaz"];
@@ -24,19 +24,19 @@ var Words = ["jazz", "nadir", "apex", "affix"
 // Creating variables to hold the number of wins, losses, and ties. 
 var Wins = 0;
 var Losses = 0;
-var MaxGuesses = 9;
+const MaxGuesses = 9;
 
 // Game state tracker to check if game is active. And variables that hold game data.
-var CurrentWord;
-var ValidGuesses = [ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' ];
+var CurrentWord; //Gets called later.
 var GuessedLetters = [];
 var GuessingWord = [];
 var GameOn = false;
 var GameFinished = false;
+var RemainingGuesses = 0;
 
 // Resets the game
 function ResetGame() {
-    MaxGuesses = 9;
+    RemainingGuesses = MaxGuesses;
     GameOn = false;
 
     // Choose a word, and clear previous guesses.
@@ -49,48 +49,78 @@ function ResetGame() {
 
 // Update scores that are readable by the player. Along with current word progress.
 function UpdateDisplay(){
-    document.getElementById("HumanCard").innerText = Wins;
-    document.getElementById("WordToGuess").innerText =
-}
+    document.getElementById("HumanScore").innerText = Wins;
+    document.getElementById("WordToGuess").innerText = "";
+    for (var i = 0; i < GuessingWord.length; i++) {
+        document.getElementById("WordToGuess").innerText += GuessingWord[i];
+    }
+    document.getElementById("GuessesLeft").innerText = MaxGuesses;
+    document.getElementById("GuessedLetters").innerText = GuessedLetters;
+    if(MaxGuesses <=0) {
+        GameFinished = true;
+    }
+};
 
 
-// Determines which key was pressed.
-var userGuess = event.key;
+// Determines which key is pressed and checks to see if A-Z and calls function below
+document.onkeydown = function(event) {
+    if(GameFinished) {
+        ResetGame();
+        GameFinished = false;
+    } else {
+        // Checks to see if A-Z was pressed: Code gotten from https://stackoverflow.com/questions/34687895/determine-if-a-letter-or-a-number-was-pressed-javascript
+        if(event.keyCode >=65 && event.keyCode <= 90) {
+            // Checks global function MakeGuess and converts input to lowercase letter.
+            MakeGuess(event.key.toLowerCase());
+        }
+    }
+};
 
-// Randomly chooses a choice from the options array. This is the Computer's guess.
-var computerGuess = words[Math.floor(Math.random() * words.length)];
+// When a user presses A-Z this part runs. Checks to see if there are guesses remaining, and if game is on. 
+function MakeGuess(letter) {
+    if (MaxGuesses > 0) {
+        if (!GameOn) {
+            GameOn = true;
+        }
+        // Checks to see if letter has already been guessed before.
+        if (GuessedLetters.indexOf(letter) === -1) {
+            GuessedLetters.push(letter);
+            CheckGuess(letter);
+        }
+    }
+    // Updates user display and checks to see if user has won.
+    UpdateDisplay();
+    CheckWin();
+};
 
-// Makes an empy array and fills it with _s equal to number of letters in word.
-var AnswerArray = [];
-for (i=0; i <words.length; i++) {
-    answerArray[i] = "_";
-}
 
-var RemainderLetters = words.length;
-while (RemainderLetters > 0) {
-    var guess = 
+// Checks input to find all every spot where it appears in the chosen word.
+function CheckGuess(letter) {
+    // Storage variable for letter positions.
+    var Position = [];
     
-}
-// This logic determines the outcome of the game (win/loss/tie), and increments the appropriate number
+    // Go through the computers word and check for guessed letter.
+    for (var i = 0; i < Words[CurrentWord].length; i++) {
+        if(Words[CurrentWord][i] === letter) {
+            Position.push(i);
+        }
+    }
+    // If the letter guessed doesn't belong, decrease guesses.
+    if (Position.length <= 0) {
+        MaxGuesses--;
+    // If the letter belongs, replace underscores with the letter.
+    } else {
+        for (var i = 0; i < Position.length; i++) {
+            GuessingWord[Position[i]] = letter;
+        }
+    }
 
-if ((userGuess === "r" && computerGuess === "s") ||
-    (userGuess === "s" && computerGuess === "p") || 
-    (userGuess === "p" && computerGuess === "r")) {
-    wins++;
-} else if (userGuess === computerGuess) {
-    ties++;
-} else {
-  losses++;
-}
 
-// Hide the directions
-directionsText.textContent = "";
+};
 
-// Display the user and computer guesses, and wins/losses/ties.
-userChoiceText.textContent = "You chose: " + userGuess;
-computerChoiceText.textContent = "The computer chose: " + computerGuess;
-winsText.textContent = "wins: " + wins;
-lossesText.textContent = "losses: " + losses;
-tiesText.textContent = "ties: " + ties;
+function CheckWin() {
+    if (GuessingWord.indexOf("_") === -1) {
+        Wins++;
+        GameFinished = true;
     }
 };
