@@ -13,114 +13,125 @@
 //6. Show the player their progress.
 //7. Finish when the player has guessed the word.
 //  a) Increment the win counter.
-    
-    
-// Array with list of words to choose from.
-var Words = ["jazz", "nadir", "apex", "affix",
-            "axiom", "blitz", "azure", "boggle", 
-            "fuchsia", "gazebo", "gaze", "jaundice", 
-            "mnemonic", "megahertz", "rhubarb", "topaz"];
 
-// Creating variables to hold the number of wins, losses, and ties. 
-var Wins = 0;
+
+//Word bank of words to choose from.
+var WordBank = ["APEX","NADIR","JAZZ", "SUTURE", "ROCS"];
+//Various variables used to keep track of game state.
+const Lives = 12;       
+var GuessedLetters = [];        
+var LiveIndex;           
+var WordBuild = [];          
+var RemainingGuesses = 0;       
+var GameOver = false;            
+var Wins = 0;                   
 var Losses = 0;
-const MaxGuesses = 9;
 
-// Game state tracker to check if game is active. And variables that hold game data.
-var CurrentWord; //Gets called later.
-var GuessedLetters = [];
-var GuessingWord = [];
-var GameOn = false;
-var GameFinished = false;
-var RemainingGuesses = 0;
+// Reset game flags
+function resetGame() {
+    RemainingGuesses = Lives;
 
-// Resets the game
-function ResetGame() {
-    RemainingGuesses = MaxGuesses;
-    GameOn = false;
+    // Gets a word from our word bank at random
+    LiveIndex = Math.floor(Math.random() * (WordBank.length));
 
-    // Choose a word, and clear previous guesses.
-    CurrentWord = Math.floor(Math.random() * (Words.length));
-    // Create the word to guess and clear it out.
-    for (var i=0; i < Words.length[CurrentWord].length; i++) {
-        GuessingWord.push("_");
-    }
+    // Clears out all of our placeholder arrays when new game is started.
+    GuessedLetters = [];
+    WordBuild = [];
+
+    // Build the guessing word and clear it out for the player
+    for (var i = 0; i < WordBank[LiveIndex].length; i++) {
+        WordBuild.push("_ ");
+    }   
+
+    // Calls our display function
+    Display();
 };
 
-// Update scores that are readable by the player. Along with current word progress.
-function UpdateDisplay(){
+//  Updates the display with various game state information for player to see.
+function Display() {
+
     document.getElementById("HumanScore").innerText = Wins;
-    document.getElementById("WordToGuess").innerText = "";
-    for (var i = 0; i < GuessingWord.length; i++) {
-        document.getElementById("WordToGuess").innerText += GuessingWord[i];
+    document.getElementById("ComputerScore").innerText = Losses;
+
+    // Display how much of the word has been guessed.
+    var WordBuildText = "";
+    for (var i = 0; i < WordBuild.length; i++) {
+        WordBuildText += WordBuild[i];
     }
-    document.getElementById("GuessesLeft").innerText = MaxGuesses;
+
+    //Update our values that the player sees.
+    document.getElementById("WordToGuess").innerText = WordBuildText;
+    document.getElementById("GuessesLeft").innerText = RemainingGuesses;
     document.getElementById("GuessedLetters").innerText = GuessedLetters;
-    if(MaxGuesses <=0) {
-        GameFinished = true;
-    }
 };
 
+// Checks the letter entered and sees if it's in the word and replaces it if so.
+function CheckGuess(letter) {
+    // Array to store Positions of letters in string
+    var Positions = [];
 
-// Determines which key is pressed and checks to see if A-Z and calls function below
-document.onkeydown = function(event) {
-    if(GameFinished) {
-        ResetGame();
-        GameFinished = false;
+    // Loop through word finding all instances of guessed letter, adds the correct indeces into the array Positions.
+    for (var i = 0; i < WordBank[LiveIndex].length; i++) {
+        if(WordBank[LiveIndex][i] === letter) {
+            Positions.push(i);
+        }
+    }
+
+    // If it's not valid, hurt 'em.
+    if (Positions.length <= 0) {
+        RemainingGuesses--;
     } else {
-        // Checks to see if A-Z was pressed: Code gotten from https://stackoverflow.com/questions/34687895/determine-if-a-letter-or-a-number-was-pressed-javascript
-        if(event.keyCode >=65 && event.keyCode <= 90) {
-            // Checks global function MakeGuess and converts input to lowercase letter.
-            MakeGuess(event.key.toLowerCase());
+        // If it was valid, then add it into the displayed word. 
+        for(var i = 0; i < Positions.length; i++) {
+            WordBuild[Positions[i]] = letter;
         }
     }
 };
+// If we have no underscores than we've won.
+function CheckWin() {
+    if(WordBuild.indexOf("_ ") === -1) {
+        Wins++;
+        GameOver = true;
+    }
+};
 
-// When a user presses A-Z this part runs. Checks to see if there are guesses remaining, and if game is on. 
-function MakeGuess(letter) {
-    if (MaxGuesses > 0) {
-        if (!GameOn) {
-            GameOn = true;
-        }
-        // Checks to see if letter has already been guessed before.
+
+// We ran out of lives, score 1 for computer.
+function CheckLoss()
+{
+    if(RemainingGuesses <= 0) {
+        Losses++;
+        GameOver = true;
+    }
+}
+
+// How do we make a guess? This thing. It sees if we can guess, and if we've already used the letter.
+function Guess(letter) {
+    if (RemainingGuesses > 0) {
+        // Make sure we didn't use this letter yet
         if (GuessedLetters.indexOf(letter) === -1) {
             GuessedLetters.push(letter);
             CheckGuess(letter);
         }
     }
-    // Updates user display and checks to see if user has won.
-    UpdateDisplay();
-    CheckWin();
-};
-
-
-// Checks input to find all every spot where it appears in the chosen word.
-function CheckGuess(letter) {
-    // Storage variable for letter positions.
-    var Position = [];
     
-    // Go through the computers word and check for guessed letter.
-    for (var i = 0; i < Words[CurrentWord].length; i++) {
-        if(Words[CurrentWord][i] === letter) {
-            Position.push(i);
-        }
-    }
-    // If the letter guessed doesn't belong, decrease guesses.
-    if (Position.length <= 0) {
-        MaxGuesses--;
-    // If the letter belongs, replace underscores with the letter.
-    } else {
-        for (var i = 0; i < Position.length; i++) {
-            GuessingWord[Position[i]] = letter;
-        }
-    }
-
-
 };
 
-function CheckWin() {
-    if (GuessingWord.indexOf("_") === -1) {
-        Wins++;
-        GameFinished = true;
+
+// Event listener
+document.onkeydown = function(event) {
+    // If we finished a game, dump one keystroke and reset.
+    if(GameOver) {
+        resetGame();
+        GameOver = false;
+    } else {
+        // Check to make sure A-Z was pressed. Code gotten from https://stackoverflow.com/questions/34687895/determine-if-a-letter-or-a-number-was-pressed-javascript. 
+        // Checks to see if we've won, or lost, and also updates the display on each button press.
+        if(event.keyCode >= 65 && event.keyCode <= 90) {
+            Guess(event.key.toUpperCase());
+            Display();
+            CheckWin();
+            CheckLoss();
+        }
     }
 };
