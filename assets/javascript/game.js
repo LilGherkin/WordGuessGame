@@ -15,7 +15,7 @@
 //  a) Increment the win counter.
 
 
-//Word bank of words to choose from.
+//Word bank of words to choose from. The theme is hard words to guess in hangman.
 var WordBank = ["APEX","NADIR","JAZZ", "SUTURE", "ROCS"];
 //Various variables used to keep track of game state.
 const Lives = 12;       
